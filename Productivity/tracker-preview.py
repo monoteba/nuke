@@ -1,6 +1,6 @@
 # Quickly disable the tracker preview for all tracker nodes to speed up rendering (significantly!)
 
-print '\nDisabling preview on trackers:'
+print '\n\nDisabling preview on trackers:'
 
 for node in nuke.allNodes("Tracker4"):
     print node.name() + ' preview disabled.'
