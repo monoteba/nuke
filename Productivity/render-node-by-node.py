@@ -8,9 +8,9 @@ nodes = nuke.selectedNodes('Write')
 nodes.sort(key=lambda x: x['render_order'].value())
 
 # render!
-for node in nodes:
-    print "\nRendering " + node['file'].value()
+c = len(nodes)
+for i, node in enumerate(nodes):
+    print "\nRendering " + str(i+1) + "/" + str(c) + " (" + node['file'].value() + ")"
     nuke.execute(node, int(node['first'].value()), int(node['last'].value()))
     print "...Done!"
-
     
