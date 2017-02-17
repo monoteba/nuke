@@ -1,16 +1,31 @@
 # renders all selected Write nodes one by one, based in their first/last frame limits
 
-# set proxy format to enabled/disable
-nuke.root()['proxy'].setValue(False)
+def renderSelected():
+    nodes = nuke.selectedNodes('Write')
 
-# sort by render order
-nodes = nuke.selectedNodes('Write')
-nodes.sort(key=lambda x: x['render_order'].value())
+    # sort by render order
+    nodes.sort(key=lambda x: x['render_order'].value())
 
-# render!
-c = len(nodes)
-for i, node in enumerate(nodes):
-    print "\nRendering " + str(i+1) + "/" + str(c) + " (" + node['file'].value() + ")"
-    nuke.execute(node, int(node['first'].value()), int(node['last'].value()))
-    print "...Done!"
-    
+    # disable proxy
+    proxy = nuke.root()['proxy'].value()
+    nuke.root()['proxy'].setValue(False)
+
+    # empty tuple for storing frame start/end/incr
+    t = ()
+
+    # render!
+    c = len(nodes)
+    for i, node in enumerate(nodes):
+        f = int(node['first'].value())
+        l = int(node['last'].value())
+        t = t + ((f, l, 1),)
+
+    # execute multiple write nodes (writeNodes, ranges)
+    # nuke.executeMultiple(tuple, tuple(tuple, tuple, tuple,))
+    nuke.executeMultiple(nodes, t)
+
+    # set proxy back to original value
+    nuke.root()['proxy'].setValue(proxy)
+
+renderSelected()
+
