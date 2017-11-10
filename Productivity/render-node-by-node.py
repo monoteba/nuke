@@ -1,33 +1,28 @@
-# renders all selected Write nodes one by one, sorted by render order and using first/last frame of the write node to determine the range to render.
+# renders all selected Write nodes one by one, based in their first/last frame limits
+import time
+
 
 def renderSelected():
     nodes = nuke.selectedNodes('Write')
 
     # sort by render order
-    nodes.sort(key=lambda x: x['render_order'].value())
+    nodes.sort(key=lambda x: x.name())
 
     # disable proxy
     proxy = nuke.root()['proxy'].value()
     nuke.root()['proxy'].setValue(False)
 
-    # empty tuple for storing frame start/end/incr
-    t = ()  # only used in executeMultiple()
-
     # render!
     c = len(nodes)
+    print('\nRender %d nodes' % (c))
     for i, node in enumerate(nodes):
+        t = time.time()
         f = int(node['first'].value())
         l = int(node['last'].value())
-        
-        # execute node
-        nuke.execute(node, f, l, 1)
-        print("\n%d of %d, %s is done" % (i+1, c, node.name()))
-        
-        t = t + ((f, l, 1),)  # only used in executeMultiple()
+        nuke.execute(node, f, l)
+        lapse = time.time() - t
+        print('%d/%d: %s rendered in %.2f seconds' % (i+1, c, node.name(), lapse))
 
-    # execute multiple write nodes (writeNodes, ranges)
-    # nuke.executeMultiple(tuple, tuple(tuple, tuple, tuple,))
-    #nuke.executeMultiple(nodes, t)
 
     # set proxy back to original value
     nuke.root()['proxy'].setValue(proxy)
